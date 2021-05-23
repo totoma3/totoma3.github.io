@@ -299,3 +299,21 @@ defaults:
     values:
       layout: single
       author_profile: true
+      
+# _tag,category
+  - scope:
+      path: ""
+      type: tag
+    values:
+      author_profile: true
+  - scope:
+      path: ""
+      type: category
+    values:
+      comments: false      
+      
+      
+      
+      
+      
+      
