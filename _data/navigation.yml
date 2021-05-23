@@ -6,8 +6,8 @@ main:
     url: https://mmistakes.github.io/minimal-mistakes/about/
   - title: "totoma's naver blog"
     url: https://blog.naver.com/totoma3
-  - title: "category"
-    url: /category/
+  - title: "categories"
+    url: /categories/
 
 #  - title: "Sitemap"
 #    url: /sitemap/
