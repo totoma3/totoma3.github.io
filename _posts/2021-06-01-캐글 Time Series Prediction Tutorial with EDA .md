@@ -192,5 +192,187 @@ weather.info()
 ![kaggle_output5](https://user-images.githubusercontent.com/79041564/120349336-fe7b2400-c338-11eb-899d-bec3baf3b7e6.png)
 
 
+# 데이터 시각화
+* 데이터를 이해하기 위해 시각화를 해보자
+  - 얼마나 많은 나라를 공격했나
+  - 상위 타겟 국가
+  - 상위 10개의 aircraft series(항공기 모델,유형)
+  - 이륙 기지 위치(공격하는 나라들)
+  - 타겟 위치
+  - 폭파 경로
+  - 현재 군사작전이 진행 중인 지역
+  - 기상 관측소 위치
 
+
+```python
+# 임무나 작전을 수행하는 나라
+print(aerial['Country'].value_counts())
+plt.figure(figsize=(22,10))
+sns.countplot(aerial['Country'])
+plt.show()
+```
+
+![kaggle_output6](https://user-images.githubusercontent.com/79041564/120349912-79dcd580-c339-11eb-8518-5763f926a84e.png)
+
+```python
+# 상위 타겟 국가들
+print(aerial['Target Country'].value_counts()[:10])
+plt.figure(figsize=(22,10))
+sns.countplot(aerial['Target Country'])
+plt.xticks(rotation=90)
+plt.show()
+```
+
+![kaggle_output7](https://user-images.githubusercontent.com/79041564/120349980-882af180-c339-11eb-9610-8e1c484f9143.png)
+
+```python
+# 항공기 모델,유형
+data = aerial['Aircraft Series'].value_counts()
+print(data[:10])
+data = [go.Bar(
+            x=data[:10].index,
+            y=data[:10].values,
+            hoverinfo = 'text',
+            marker = dict(color = 'rgba(177, 14, 22, 0.5)',
+                             line=dict(color='rgb(0,0,0)',width=1.5)),
+    )]
+
+layout = dict(
+    title = 'Aircraft Series',
+)
+fig = go.Figure(data=data, layout=layout)
+iplot(fig)
+```
+
+![kaggle_output8](https://user-images.githubusercontent.com/79041564/120350039-9547e080-c339-11eb-993c-b88f918e6ec6.png)
+
+```python
+# 공격
+aerial["color"] = ""
+aerial.color[aerial.Country == "USA"] = "rgb(0,116,217)"
+aerial.color[aerial.Country == "GREAT BRITAIN"] = "rgb(255,65,54)"
+aerial.color[aerial.Country == "NEW ZEALAND"] = "rgb(133,20,75)"
+aerial.color[aerial.Country == "SOUTH AFRICA"] = "rgb(255,133,27)"
+
+data = [dict(
+    type='scattergeo',
+    lon = aerial['Takeoff Longitude'],
+    lat = aerial['Takeoff Latitude'],
+    hoverinfo = 'text',
+    text = "Country: " + aerial.Country + " Takeoff Location: "+aerial["Takeoff Location"]+" Takeoff Base: " + aerial['Takeoff Base'],
+    mode = 'markers',
+    marker=dict(
+        sizemode = 'area',
+        sizeref = 1,
+        size= 10 ,
+        line = dict(width=1,color = "white"),
+        color = aerial["color"],
+        opacity = 0.7),
+)]
+layout = dict(
+    title = 'Countries Take Off Bases ',
+    hovermode='closest',
+    geo = dict(showframe=False, showland=True, showcoastlines=True, showcountries=True,
+               countrywidth=1, projection=dict(type='Mercator'),
+              landcolor = 'rgb(217, 217, 217)',
+              subunitwidth=1,
+              showlakes = True,
+              lakecolor = 'rgb(255, 255, 255)',
+              countrycolor="rgb(5, 5, 5)")
+)
+fig = go.Figure(data=data, layout=layout)
+iplot(fig)
+```
+
+![kaggle_output9](https://user-images.githubusercontent.com/79041564/120350114-a55fc000-c339-11eb-8165-475f63d31a2d.png)
+
+
+**이제 공격하는 나라에서 이륙해서 폭탄을 어느 나라로 떨어뜨리는지 폭탄 경로를 시각화해보자.**
+
+```python
+# 폭탄 경로
+# 경로1
+airports = [ dict(
+        type = 'scattergeo',
+        lon = aerial['Takeoff Longitude'],
+        lat = aerial['Takeoff Latitude'],
+        hoverinfo = 'text',
+        text = "Country: " + aerial.Country + " Takeoff Location: "+aerial["Takeoff Location"]+" Takeoff Base: " + aerial['Takeoff Base'],
+        mode = 'markers',
+        marker = dict( 
+            size=5, 
+            color = aerial["color"],
+            line = dict(
+                width=1,
+                color = "white"
+            )
+        ))]
+# 경로2
+targets = [ dict(
+        type = 'scattergeo',
+        lon = aerial['Target Longitude'],
+        lat = aerial['Target Latitude'],
+        hoverinfo = 'text',
+        text = "Target Country: "+aerial["Target Country"]+" Target City: "+aerial["Target City"],
+        mode = 'markers',
+        marker = dict( 
+            size=1, 
+            color = "red",
+            line = dict(
+                width=0.5,
+                color = "red"
+            )
+        ))]
+        
+# 경로3
+flight_paths = []
+for i in range( len( aerial['Target Longitude'] ) ):
+    flight_paths.append(
+        dict(
+            type = 'scattergeo',
+            lon = [ aerial.iloc[i,9], aerial.iloc[i,16] ],
+            lat = [ aerial.iloc[i,8], aerial.iloc[i,15] ],
+            mode = 'lines',
+            line = dict(
+                width = 0.7,
+                color = 'black',
+            ),
+            opacity = 0.6,
+        )
+    )
+    
+layout = dict(
+    title = 'Bombing Paths from Attacker Country to Target ',
+    hovermode='closest',
+    geo = dict(showframe=False, showland=True, showcoastlines=True, showcountries=True,
+               countrywidth=1, projection=dict(type='Mercator'),
+              landcolor = 'rgb(217, 217, 217)',
+              subunitwidth=1,
+              showlakes = True,
+              lakecolor = 'rgb(255, 255, 255)',
+              countrycolor="rgb(5, 5, 5)")
+)
+    
+fig = dict( data=flight_paths + airports+targets, layout=layout )
+iplot( fig )
+```
+
+![kaggle_output10](https://user-images.githubusercontent.com/79041564/120350240-c3c5bb80-c339-11eb-87e9-9bf2c7295c6b.png)
+
+그림에서 볼 수 있듯이 대부분의 폭격이 지중해의 Theater of Operations에서 벌어진다.
+* ETO: European Theater of Operations(유럽에서의 작전 지역)
+* PTO: Pasific Theater of Operations(태평양의 작전 지역)
+* MTO: Mediterranean Theater of Operations(지중해의 작전 지역)
+* CBI: China-Burma-India Theater of Operations(버마 작전 지역)
+* EAST AFRICA: East Africa Theater of Operations(동아프리카 작전 지역)
+
+**작전 지역을 그래프로 나타내어 보자!**
+
+```python
+#Theater of Operations(작전 지역)
+print(aerial['Theater of Operations'].value_counts())
+plt.figure(figsize=(22,10))
+sns.countplot(aerial['Theater of Operations'])
+plt.show()
+```
 
