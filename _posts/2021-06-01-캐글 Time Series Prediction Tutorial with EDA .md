@@ -633,7 +633,134 @@ Critical Values: {'1%': -3.4392539652094154, '5%': -2.86546960465041, '10%': -2.
   - Differencing method: 시계열과 이동 시계열 간의 차이를 갖는 것이 좋습니다.
 
 
+```python
+# differencing method
+ts_diff = ts - ts.shift()
+plt.figure(figsize=(22,10))
+plt.plot(ts_diff)
+plt.title("Differencing method") 
+plt.xlabel("Date")
+plt.ylabel("Differencing Mean Temperature")
+plt.show()
+```
 
+![kaggle_output19](https://user-images.githubusercontent.com/79041564/120352430-b9a4bc80-c33b-11eb-99f1-44c805119b0a.png)
+
+```python
+ts_diff.dropna(inplace=True) # 이동 때문에 nan 값이 있다.
+# check stationary: mean, variance(std)and adfuller test
+check_mean_std(ts_diff)
+check_adfuller(ts_diff.MeanTemp)
+```
+
+![kaggle_output20](https://user-images.githubusercontent.com/79041564/120352482-c6291500-c33b-11eb-96de-c2f9d4eb5084.png)
+
+* 상수 평균 기준: 위의 그림(검은색 선)에서 볼 수 있듯이 평균은 일정하다. (정상성 조건 충족)
+* 두 번째로 상수 분산은 일정하다. (정상성 조건 충족)
+* 검정 통계량은 1%의 임계 값보다 작으므로 99%의 신뢰도로 정상성이다. (정상성 조건 충족)
+
+
+# 시계열 예측
+* 우리는 추세와 계절성을 피하기 위해 이동 평균과 Differencing을 배웠다.
+* 예측을 위해 우리는 Differencing 방법의 결과인 ts_diff time series을 사용할 것이다.
+* 또한 예측 방법은 자동 회귀 통합 이동 평균인 ARIMA이다.
+  - AR(Auto-Regressive,(P): 자동 회귀 분석이고 종속 변수의 시차를 이용한다.
+    예를 들어 p가 3이면 우리는 x(t-1), x(t-2), x(t-3)을 x(t)예측하는데 사용할 것이다.
+  - I(Integrated),(d): 이것은 비계절성 차이의 수이다.
+    예를 들어 우리가 첫번째 차이를 보면, 우리는 그 변수를 통과하고 d=0을 넣을 것이다.
+  - MA: Moving Averages (q): MA 항은 예측 방정식에서 지연된 예측 오차이다.
+* (p,d,q)는 ARIMA 모델의 파라미터이다.
+* p,d,q 모수를 선택하려면 두 개의 다른 plot을 사용할 것이다.
+  - Autocorrelation Function (ACF): 시계열과 지연된 시계열 버전 간의 상관 관계 측정.
+  - Partial Autocorrelation Function (PACF): 이것은 시계열과 시계열의 지연 버전 사이의 상관 관계를 측정하지만, 개입 비교에 의해 이미 설명되는 변동을 제거한 후에 측정한다.  
+
+```python
+# ACF and PACF 
+from statsmodels.tsa.stattools import acf, pacf
+lag_acf = acf(ts_diff, nlags=20)
+lag_pacf = pacf(ts_diff, nlags=20, method='ols')
+# ACF
+plt.figure(figsize=(22,10))
+
+plt.subplot(121) 
+plt.plot(lag_acf)
+plt.axhline(y=0,linestyle='--',color='gray')
+plt.axhline(y=-1.96/np.sqrt(len(ts_diff)),linestyle='--',color='gray')
+plt.axhline(y=1.96/np.sqrt(len(ts_diff)),linestyle='--',color='gray')
+plt.title('Autocorrelation Function')
+
+# PACF
+plt.subplot(122)
+plt.plot(lag_pacf)
+plt.axhline(y=0,linestyle='--',color='gray')
+plt.axhline(y=-1.96/np.sqrt(len(ts_diff)),linestyle='--',color='gray')
+plt.axhline(y=1.96/np.sqrt(len(ts_diff)),linestyle='--',color='gray')
+plt.title('Partial Autocorrelation Function')
+plt.tight_layout()
+```
+
+![kaggle_output21](https://user-images.githubusercontent.com/79041564/120352581-de009900-c33b-11eb-81bf-16671c4463ab.png)
+
+
+* 두 점선은 신뢰 구간이다. 이러한 라인을 사용하여 'p' 및 'q' 값을 결정한다.
+  - p 선택: PACF 관리도가 처음으로 신뢰 상한 구간을 교차하는 지연 값이다. p=1.
+  - q 선택: ACF 관리도가 처음으로 신뢰 상한 구간을 교차하는 지연 값이다. q=1.
+* 이제 (1,0,1)을 ARIMA 모델의 매개 변수로 사용하고 예측하자.
+  - ARIMA: statsmodels 라이브러리에서 사용하자.
+  - datetime: 우리는 예측 방법으로 이것을 시작과 끝의 인덱스에 사용할 것이다.
+
+```python
+# ARIMA LİBRARY
+from statsmodels.tsa.arima_model import ARIMA
+from pandas import datetime
+
+# fit model
+model = ARIMA(ts, order=(1,0,1)) # (ARMA) = (1,0,1)
+model_fit = model.fit(disp=0)
+
+# predict
+start_index = datetime(1944, 6, 25)
+end_index = datetime(1945, 5, 31)
+forecast = model_fit.predict(start=start_index, end=end_index)
+
+# visualization
+plt.figure(figsize=(22,10))
+plt.plot(weather_bin.Date,weather_bin.MeanTemp,label = "original")
+plt.plot(forecast,label = "predicted")
+plt.title("Time Series Forecast")
+plt.xlabel("Date")
+plt.ylabel("Mean Temperature")
+plt.legend()
+plt.show()
+```
+
+![kaggle_output22](https://user-images.githubusercontent.com/79041564/120352646-f1abff80-c33b-11eb-9b80-df9aad77897a.png)
+
+**모든 경로를 예측하고 시각화하여 평균 제곱 오차 찾아보자.**
+
+```python
+# predict all path
+from sklearn.metrics import mean_squared_error
+# fit model
+model2 = ARIMA(ts, order=(1,0,1)) # (ARMA) = (1,0,1)
+model_fit2 = model2.fit(disp=0)
+forecast2 = model_fit2.predict()
+error = mean_squared_error(ts, forecast2)
+print("error: " ,error)
+# visualization
+plt.figure(figsize=(22,10))
+plt.plot(weather_bin.Date,weather_bin.MeanTemp,label = "original")
+plt.plot(forecast2,label = "predicted")
+plt.title("Time Series Forecast")
+plt.xlabel("Date")
+plt.ylabel("Mean Temperature")
+plt.legend()
+plt.savefig('graph.png')
+
+plt.show()
+```
+
+![kaggle_output23](https://user-images.githubusercontent.com/79041564/120352719-08525680-c33c-11eb-9101-cd5218fa1320.png)
 
 
 
