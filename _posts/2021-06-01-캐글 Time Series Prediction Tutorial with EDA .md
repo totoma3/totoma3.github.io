@@ -624,7 +624,9 @@ check_adfuller(ts_moving_avg_diff.MeanTemp)
 ![kaggle_output18](https://user-images.githubusercontent.com/79041564/120351884-34210c80-c33b-11eb-9954-a479e077779e.png)
 
 Test statistic:  -11.13851433513848
+
 p-value:  3.150868563164539e-20
+
 Critical Values: {'1%': -3.4392539652094154, '5%': -2.86546960465041, '10%': -2.5688625527782327}
 
 * 상수 평균 기준: 위의 그림(검은색 선)에서 볼 수 있듯이 평균은 상수처럼 보인다. (정상성 조건 충족)
