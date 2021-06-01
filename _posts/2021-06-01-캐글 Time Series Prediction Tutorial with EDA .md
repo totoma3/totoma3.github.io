@@ -16,6 +16,8 @@ tags:
 ---
 
 # Time Series Prediction Tutorial with EDA
+
+
 여기 데이터에서는 aerial bombing operations(공중 폭격 작전)과 weather conditions in world war 2(2차 세계대전 날씨)의 데이터를 사용했다.
 
 이 시점 이후에는 2차 세계대전을 약자 ww2로 사용할 것이다.
