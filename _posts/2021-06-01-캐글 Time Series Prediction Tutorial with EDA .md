@@ -91,11 +91,105 @@ weather = pd.read_csv("C:\kaggle\input\Summary of Weather.csv")
 ```python
 aerial.head()
 ```
+![kaggle_output1](https://user-images.githubusercontent.com/79041564/120348716-64b37700-c338-11eb-9348-11df9f0e8936.png)
+
 
 ```python
 weather.head()
 ```
 
+![kaggle_output2](https://user-images.githubusercontent.com/79041564/120348725-6846fe00-c338-11eb-81ca-0eb7d12288dd.png)
+
+# 데이터 설명
+* Aerial bombing Data 설명
+  - Mission Date: 미션의 날짜
+  - Theater of Operations: 현재 군사작전이 진행 중인 지역
+    "군대는 현장에서 작전을 기다리고 있었다."를 예를 들면: "베트남 극장에서 3년간 근무했습니다"
+  - Country: 미국처럼 임무나 작전을 수행하는 나라
+  - Air Force: 5AF와 같은 공군 통합의 명칭 또는 ID
+  - Aircraft Series: B24와 같은 항공기 모델 또는 유형
+  - Callsign: 폭탄 공격전에 메세지나 코드, 방송, 라디오로 알린다.
+  - Takeoff Base: "폰테 올리보 비행장"처럼 이륙 공항 이름
+  - Takeoff Location: Sicily의 이륙 지역
+  - Takeoff Latitude: 이륙 지역의 위도
+  - Takeoff Longitude: 이륙 지역의 경도
+  - Target Country: "독일" 같은 목표 국가
+  - Target City: "베를린" 같은 목표 도시
+  - Target Type: "도시지역" 같은 목표의 유형
+  - Target Industry: 도시나 도회지같은 목표 산업
+  - Target Priority: 1(가장 높음)과 같은 목표 우선순위
+  - Target Latitude: 목표의 위도
+  - Target Longitude: 목표의 경도
+
+* Weather Condition data 설명
+  - Weather station location(기상대 위치)
+    + WBAN: 기상청 번호
+    + NAME: 기상 관측소 이름
+    + STATE/COUNTRY ID: 국가의 약자
+    + Latitude: 기상 관측소의 위도
+    + Longitude: 기상대의 경도
+  - Weather
+    + STA: 어느 역 번호 (WBAN) (네이버 어휘사전)
+    + Date: 온도측정일자
+    + MeanTemp: 평균 온도
+
+
+# 데이터 클리닝
+* Aerial Bombing 데이터는 NaN을 많이 포함하고 있다. 여기서 NaN을 drop했다.
+  이렇게 함으로써 불확실성을 제거할 뿐만 아니라 시각화 과정도 간소화 되었다.
+  - Drop countries that are NaN(NaN인 국가 삭제)
+  - Drop if target longitude is NaN(NaN인 타겟 경도 삭제)
+  - Drop if takeoff longitude is NaN(NaN인 이륙 경도 삭제)
+  - Drop unused features(사용하지 않는 기능 삭제)
+* 여기서 Weather Condition 데이터는 클리닝할 필요가 없어서 놔두었다.
+  그러나 데이터 변수는 우리가 사용하는 것만 넣을 것이다.
+
+```python
+# NaN인 국가 삭제
+aerial = aerial[pd.isna(aerial.Country)==False]
+# NaN인 타겟 경도 삭제
+aerial = aerial[pd.isna(aerial['Target Longitude'])==False]
+# NaN인 이륙 경도 삭제
+aerial = aerial[pd.isna(aerial['Takeoff Longitude'])==False]
+# 사용하지 않는 기능 삭제
+drop_list = ['Mission ID','Unit ID','Target ID','Altitude (Hundreds of Feet)','Airborne Aircraft',
+             'Attacking Aircraft', 'Bombing Aircraft', 'Aircraft Returned',
+             'Aircraft Failed', 'Aircraft Damaged', 'Aircraft Lost',
+             'High Explosives', 'High Explosives Type','Mission Type',
+             'High Explosives Weight (Pounds)', 'High Explosives Weight (Tons)',
+             'Incendiary Devices', 'Incendiary Devices Type',
+             'Incendiary Devices Weight (Pounds)',
+             'Incendiary Devices Weight (Tons)', 'Fragmentation Devices',
+             'Fragmentation Devices Type', 'Fragmentation Devices Weight (Pounds)',
+             'Fragmentation Devices Weight (Tons)', 'Total Weight (Pounds)',
+             'Total Weight (Tons)', 'Time Over Target', 'Bomb Damage Assessment','Source ID']
+aerial.drop(drop_list, axis=1,inplace = True)
+aerial = aerial[ aerial.iloc[:,8]!="4248"] # 이 이륙 위도 삭제 
+aerial = aerial[ aerial.iloc[:,9]!=1355]   # 이 이륙 경도 삭제
+```  
+  
+# 데이터 클리닝 후 데이터셋 살펴보기
+```python
+aerial.info()
+```
+
+![kaggle_output3](https://user-images.githubusercontent.com/79041564/120349061-bb20b580-c338-11eb-94a6-3dc06448f96f.png)
+
+# 우리가 weather_station_location에서 사용할 것만 고르기
+```python
+weather_station_location = weather_station_location.loc[:,["WBAN","NAME","STATE/COUNTRY ID","Latitude","Longitude"] ]
+weather_station_location.info()
+```
+
+![kaggle_output4](https://user-images.githubusercontent.com/79041564/120349277-eefbdb00-c338-11eb-84c8-fb5d86f83a89.png)
+
+```python
+# 마찬가지로 우리가 weather에서 우리가 사용할 것만 고르기
+weather = weather.loc[:,["STA","Date","MeanTemp"] ]
+weather.info()
+```
+
+![kaggle_output5](https://user-images.githubusercontent.com/79041564/120349336-fe7b2400-c338-11eb-899d-bec3baf3b7e6.png)
 
 
 
