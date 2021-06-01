@@ -376,3 +376,264 @@ sns.countplot(aerial['Theater of Operations'])
 plt.show()
 ```
 
+![kaggle_output11](https://user-images.githubusercontent.com/79041564/120351036-77c74680-c33a-11eb-80d4-c5878a48511c.png)
+
+# Weather station location(기상소 위치)
+
+```python
+# weather station locations(기상소 위치)
+
+data = [dict(
+    type='scattergeo',
+    lon = weather_station_location.Longitude,
+    lat = weather_station_location.Latitude,
+    hoverinfo = 'text',
+    text = "Name: " + weather_station_location.NAME + " Country: " + weather_station_location["STATE/COUNTRY ID"],
+    mode = 'markers',
+    marker=dict(
+        sizemode = 'area',
+        sizeref = 1,
+        size= 8 ,
+        line = dict(width=1,color = "white"),
+        color = "blue",
+        opacity = 0.7),
+)]
+layout = dict(
+    title = 'Weather Station Locations ',
+    hovermode='closest',
+    geo = dict(showframe=False, showland=True, showcoastlines=True, showcountries=True,
+               countrywidth=1, projection=dict(type='Mercator'),
+              landcolor = 'rgb(217, 217, 217)',
+              subunitwidth=1,
+              showlakes = True,
+              lakecolor = 'rgb(255, 255, 255)',
+              countrycolor="rgb(5, 5, 5)")
+)
+fig = go.Figure(data=data, layout=layout)
+iplot(fig)
+```
+
+![kaggle_output12](https://user-images.githubusercontent.com/79041564/120351118-8d3c7080-c33a-11eb-8451-27f4a99bd8b8.png)
+
+
+* USA와 BURMA 전쟁에 초점을 맞춰보자
+* 이 전쟁에서 미국은 1942년부터 1945년까지 버마를 폭격했다.
+* 이 전쟁에서 가장 가까운 기상대는 BINDUKURI이고 1943년부터 1945년까지의 기온 기록을 가지고 있다.
+* 이제 이 상황을 시각화해 보자. 시각화하기 전에 날짜 특징 객체를 만들자.
+
+
+```python
+weather_station_id = weather_station_location[weather_station_location.NAME == "BINDUKURI"].WBAN 
+#WBAN은 기상청 번호
+weather_bin = weather[weather.STA == 32907]
+#STA는 기상청 번호(WBAN)
+weather_bin["Date"] = pd.to_datetime(weather_bin["Date"])
+plt.figure(figsize=(22,10))
+plt.plot(weather_bin.Date,weather_bin.MeanTemp)
+plt.title("Mean Temperature of Bindukuri Area")
+plt.xlabel("Date")
+plt.ylabel("Mean Temperature")
+plt.show()
+```
+
+![kaggle_output13](https://user-images.githubusercontent.com/79041564/120351187-a0e7d700-c33a-11eb-9f84-2e1bb65d7bdf.png)
+
+* 데이터셋 정보를 보고 알 수 있듯이 온도 측정은 1943년부터 1945년까지있다.
+* 온도는 12도에서 32도 사이에서 왔다갔다한다.
+* 온도를 보고 알 수 있듯이 겨울은 여름보다 춥다.
+
+```python
+aerial = pd.read_csv("C:\kaggle\input\operations.csv")
+aerial["year"] = [ each.split("/")[2] for each in aerial["Mission Date"]]
+aerial["month"] = [ each.split("/")[0] for each in aerial["Mission Date"]]
+aerial = aerial[aerial["year"]>="1943"]
+aerial = aerial[aerial["month"]>="8"]
+
+aerial["Mission Date"] = pd.to_datetime(aerial["Mission Date"])
+
+attack = "USA"
+target = "BURMA"
+city = "KATHA"
+
+aerial_war = aerial[aerial.Country == attack]
+aerial_war = aerial_war[aerial_war["Target Country"] == target]
+aerial_war = aerial_war[aerial_war["Target City"] == city]
+```
+
+```python
+liste = []
+aa = []
+for each in aerial_war["Mission Date"]:
+    dummy = weather_bin[weather_bin.Date == each]
+    liste.append(dummy["MeanTemp"].values)
+aerial_war["dene"] = liste
+for each in aerial_war.dene.values:
+    aa.append(each[0])
+
+# Create a trace
+trace = go.Scatter(
+    x = weather_bin.Date,
+    mode = "lines",
+    y = weather_bin.MeanTemp,
+    marker = dict(color = 'rgba(16, 112, 2, 0.8)'),
+    name = "Mean Temperature"
+)
+trace1 = go.Scatter(
+    x = aerial_war["Mission Date"],
+    mode = "markers",
+    y = aa,
+    marker = dict(color = 'rgba(16, 0, 200, 1)'),
+    name = "Bombing temperature"
+)
+layout = dict(title = 'Mean Temperature --- Bombing Dates and Mean Temperature at this Date')
+data = [trace,trace1]
+
+fig = dict(data = data, layout = layout)
+iplot(fig)
+```
+
+![kaggle_output14](https://user-images.githubusercontent.com/79041564/120351318-c1179600-c33a-11eb-890a-e37907e19ff5.png)
+
+* 녹색 선은 Bindukuri에서 측정한 평균 온도입니다.
+* 파란색 표시는 폭격 날짜 및 폭격이 벌어지는 날의 온도입니다.
+* USA는 높은 온도일때 폭격을 했다.
+  - 문제는 우리가 미래의 날씨를 예측할 수 있고, 이 예측에 따라 우리는 폭격이 행해질 것인지 아닌지를 알 수 있다는 것이다.
+  - 이 질문에 답하려면 먼저 시계열 예측부터 시작해야 한다.
+
+# ARIMA와 함께 시계열 예측
+* 우리는 ARIMA 모델을 사용할 것이다.
+* ARIMA : AutoRegressive Integrated Moving Average(자동 회귀 통합 이동 평균)
+* 이 방법에 대해 알아보려면 다음을 알아야한다.:
+  - 시계열이 무엇인가?
+  - 시계열의 정상성은 무엇인가?
+  - 시계열의 정상성을 만들어야하나?
+  - 시계열 예측
+
+
+# 시계열이란 무엇인가?
+* 시계열은 일정한 시간 간격으로 수집된 데이터 점의 집합이다.
+* 시계열은 시간에 의존한다.
+* 대부분의 시계열은 계절적 경향의 형태를 가지고 있다. 예를 들어, 우리가 아이스크림을 판매한다면, 아마도 여름 시즌에는 더 높은 판매가 있을 것이다. 따라서, 이 시계열은 계절성 추세를 가지고 있다고 할 수 있다.
+* 또 다른 예로, 1년 동안 매일 한 번씩 주사위를 던졌다고 생각해보면 숫자 6이 주로 여름 시즌에 등장하거나 숫자5가 대부분 1월에 등장한다는 식의 시나리오는 없을 것이다. 따라서 이 시계열에는 계절성 추세가 없다고 할 수 있다.
+
+# 시계열의 정상성
+* 정상성인지 아닌지 이해하기 위해서 3가지의 기본 조건이 있다.
+  - 평균같은 시계열의 통계학적인 특성에서 시간이 경과함에도 분산은 계속 유지되어야한다.
+    + 상수의 평균
+    + 상수의 분산
+    + 자기공분산(autocovariance)은 시간에 의존하지 않는다. 자기 공분산은 시계열과 lagged(지연) 시계열 간의 공분산입니다.
+
+**데이터에서 시각화와 계절성을 체크해보자!**
+
+```python
+# Bindikuri지역의 평균 온도
+plt.figure(figsize=(22,10))
+plt.plot(weather_bin.Date,weather_bin.MeanTemp)
+plt.title("Mean Temperature of Bindukuri Area")
+plt.xlabel("Date")
+plt.ylabel("Mean Temperature")
+plt.show()
+
+# weather에서부터 시계열을 만들어 보자
+timeSeries = weather_bin.loc[:, ["Date","MeanTemp"]]
+timeSeries.index = timeSeries.Date
+ts = timeSeries.drop("Date",axis=1)
+```
+
+![kaggle_output15](https://user-images.githubusercontent.com/79041564/120351549-f0c69e00-c33a-11eb-98a6-026abed12c93.png)
+
+* 그래프를 보고 알 수 있듯이 데이터의 시계열은 계절적 변동을 가지고 있다. 여름에는 평균 기온이 더 높고 겨울에는 평균 기온이 매년 더 낮다.
+* 이제 정상성을 체크해보자. 우리는 다음 방법으로 정상성을 체크할 수 있다.
+  - Plotting Rolling Statistics: window 크기를 6이라고 하는 window를 가지고 있고 그리고 우리는 정상성을 체크할 수 있는 rolling mean와 variance를 발견할 수 있다.
+  - Dickey-Fuller Test: 검정 결과는 검정 통계량과 차이 신뢰 수준에 대한 일부 임계 값으로 구성된다. 검정 통계량이 임계값보다 작으면 시계열이 정지 상태라고 말할 수 있다.
+
+```python
+# adfuller library, ADF검정을 사용할 수 있는 파이썬 패키지
+from statsmodels.tsa.stattools import adfuller
+# check_adfuller
+def check_adfuller(ts):
+    # Dickey-Fuller test
+    result = adfuller(ts, autolag='AIC')
+    print('Test statistic: ' , result[0])
+    print('p-value: '  ,result[1])
+    print('Critical Values:' ,result[4])
+# check_mean_std
+
+def check_mean_std(ts):
+    #Rolling statistics
+    #여기서 pd.rolling_mean(ts, window=6)를  ts.rolling(6).mean()으로 바꿔줘야한다.
+    rolmean = ts.rolling(6).mean()
+    rolstd = ts.rolling(6).std()
+    plt.figure(figsize=(22,10))   
+    orig = plt.plot(ts, color='red',label='Original')
+    mean = plt.plot(rolmean, color='black', label='Rolling Mean')
+    std = plt.plot(rolstd, color='green', label = 'Rolling Std')
+    plt.xlabel("Date")
+    plt.ylabel("Mean Temperature")
+    plt.title('Rolling Mean & Standard Deviation')
+    plt.legend()
+    plt.show()
+    
+# check stationary: mean, variance(std)and adfuller test
+check_mean_std(ts)
+check_adfuller(ts.MeanTemp)
+```
+
+![kaggle_output16](https://user-images.githubusercontent.com/79041564/120351649-04720480-c33b-11eb-8d4b-106ee3db6bc6.png)
+
+
+* 정상성의 첫 번째 기준은 상수 평균이다.따라서 위의 그림(검은색 선)에서 볼 수 있듯이 평균이 일정하지 않기 때문에 정상성이 아님을 알 수 있다. (정상성 아님)
+* 두 번째 초록색 그래프는 상수 분산이다. 그래프를 보면 일정해보인다.(정상성임)
+* 세 번째 방법은 검정 통계량이 임계값보다 작을 경우 시계열은 정상성이라고 말할 수 있다. 결과값을 보면 t-test값이 -1.4이고 Critical 값이 1%일때 -3.4, 5%일때 -2.8, 10%일때 -2.5임을 알 수 있다. 즉 t-테스트 값이 Critical 값보다 크다.
+* 결과적으로, 우리는 데이터의 시계열이 정상성이 아니라고 확신한다.
+* 다음 파트에서 정상성으로 만들어 보자!
+
+# 시계열의 정상성 만들기?
+* 위에서 밝혀진 것처럼 이 데이터가 정상성이 아닌 이유가 2가지 있다.
+  - Trend(추세): 시간 경과에 따른 평균. 즉 우리는 시계열의 정상성을 위해 일정한 평균이 필요하다.
+  - Seasonality(계절성): 특정 시점의 변동. 즉 우리는 시계열의 정상성을 위해 일정한 변형이 필요하다.
+* 첫번째로 추세문제를 풀어보자!
+  - 가장 유명한 방법은 moving average방법이다.
+    + Moving average: 우리는 'n'개 샘플의 평균을 구하는 창이 있다. 'n'은 창 크기이다.
+
+```python
+# Moving average method(이동 평균 방법)
+window_size = 6
+moving_avg = ts.rolling(window_size).mean()
+plt.figure(figsize=(22,10))
+plt.plot(ts, color = "red",label = "Original")
+plt.plot(moving_avg, color='black', label = "moving_avg_mean")
+plt.title("Mean Temperature of Bindukuri Area")
+plt.xlabel("Date")
+plt.ylabel("Mean Temperature")
+plt.legend()
+plt.show()    
+```
+
+![kaggle_output17](https://user-images.githubusercontent.com/79041564/120351827-28cde100-c33b-11eb-9534-f183f154049e.png)
+
+```python
+ts_moving_avg_diff = ts - moving_avg
+ts_moving_avg_diff.dropna(inplace=True) # 첫 번째 6은 창 크기로 인해 nan 값입니다.
+
+# check stationary: mean, variance(std)and adfuller test
+check_mean_std(ts_moving_avg_diff)
+check_adfuller(ts_moving_avg_diff.MeanTemp)
+```
+
+![kaggle_output18](https://user-images.githubusercontent.com/79041564/120351884-34210c80-c33b-11eb-9954-a479e077779e.png)
+
+Test statistic:  -11.13851433513848
+p-value:  3.150868563164539e-20
+Critical Values: {'1%': -3.4392539652094154, '5%': -2.86546960465041, '10%': -2.5688625527782327}
+
+* 상수 평균 기준: 위의 그림(검은색 선)에서 볼 수 있듯이 평균은 상수처럼 보인다. (정상성 조건 충족)
+* 두 번째는 상수 분산인데 일정해 보인다. (정상성 충족)
+* 검정 통계량은 1%의 임계 값보다 작으므로 99%의 신뢰도로 정상성이라고 말할 수 있습니다. (정상성 조건 충족)
+  - Differencing method: 시계열과 이동 시계열 간의 차이를 갖는 것이 좋습니다.
+
+
+
+
+
+
