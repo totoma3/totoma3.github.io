@@ -1,3 +1,22 @@
+---
+layout: single
+title: "Otto Group Product Classification Challenge"
+description: "Otto Group Product Classification Challenge 성능 비교"
+headline: "Otto Group Product Classification Challenge"
+comments: true
+published: true
+toc: true
+toc_label: "Contents"
+toc_icon: "cog"
+categories:
+  - Deep_learning
+tags:
+  - machine_learning
+  - Deep_learning
+  - python
+---
+
+
 ```python
 #파일 불러오기
 import pandas as pd
@@ -363,8 +382,12 @@ sns.countplot(df['target'])
 
 
     
-![png](output_4_2.png)
-    
+![output_4_2](https://user-images.githubusercontent.com/79041564/123429875-71a74b80-d602-11eb-84bd-ebb96ac44ba7.png)
+![output_8_2](https://user-images.githubusercontent.com/79041564/123429879-723fe200-d602-11eb-8d67-d1996f5c8dd6.png)
+![output_11_2](https://user-images.githubusercontent.com/79041564/123429880-72d87880-d602-11eb-8e90-9159f58c34b3.png)
+![output_12_2](https://user-images.githubusercontent.com/79041564/123429882-73710f00-d602-11eb-8b35-a2dac92f0b37.png)
+![output_19_0](https://user-images.githubusercontent.com/79041564/123429887-73710f00-d602-11eb-99dd-fa924ec4ae36.png)
+
 
 
 
@@ -419,7 +442,8 @@ sns.countplot(y_test,ax=axes[1])
 
 
     
-![png](output_8_2.png)
+![output_8_2](https://user-images.githubusercontent.com/79041564/123429906-7835c300-d602-11eb-816c-bf516b62227e.png)
+
     
 
 
@@ -469,7 +493,8 @@ sns.countplot(y_test,ax=axes[1])
 
 
     
-![png](output_11_2.png)
+![output_11_2](https://user-images.githubusercontent.com/79041564/123429922-7ec43a80-d602-11eb-818c-de1ed7c6cebc.png)
+
     
 
 
@@ -501,7 +526,8 @@ axes[1].legend(title='predictions by random forest')
 
 
     
-![png](output_12_2.png)
+![output_12_2](https://user-images.githubusercontent.com/79041564/123429936-82f05800-d602-11eb-9de6-f930a3063259.png)
+
     
 
 
@@ -584,6 +610,7 @@ plt.show()
 
 
     
-![png](output_19_0.png)
+![output_19_0](https://user-images.githubusercontent.com/79041564/123429953-88e63900-d602-11eb-8e93-a7ce915595d5.png)
+
     
 
