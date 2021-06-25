@@ -444,9 +444,8 @@ list_scores.append(score_2)
 list_models.append('random forest classifier')
 ```
 
+# score_2
 
-```python
-score_2
 ```
     0.8062378797672916
 
@@ -517,9 +516,8 @@ list_scores.append(score_3)
 list_models.append('support vector machines')
 ```
 
+# score_3
 
-```python
-score_3
 ```
 
 
@@ -560,9 +558,8 @@ list_scores.append(score_4)
     [20:34:09] WARNING: C:/Users/Administrator/workspace/xgboost-win64_release_1.4.0/src/learner.cc:1095: Starting in XGBoost 1.3.0, the default evaluation metric used with the objective 'multi:softprob' was changed from 'merror' to 'mlogloss'. Explicitly set eval_metric if you'd like to restore the old behavior.
     
 
+# score_4
 
-```python
-score_4
 ```
 
 
