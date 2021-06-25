@@ -445,7 +445,8 @@ list_models.append('random forest classifier')
 ```
 
 # score_2
-
+```python
+score_2
 ```
     0.8062378797672916
 
@@ -517,7 +518,8 @@ list_models.append('support vector machines')
 ```
 
 # score_3
-
+```python
+score_3
 ```
 
 
@@ -559,7 +561,8 @@ list_scores.append(score_4)
     
 
 # score_4
-
+```python
+score_4
 ```
 
 
