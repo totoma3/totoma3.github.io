@@ -17,6 +17,7 @@ tags:
 ---
 
 
+# 파일 불러오기
 ```python
 #파일 불러오기
 import pandas as pd
@@ -358,7 +359,7 @@ le=LabelEncoder()
 df['target']=le.fit_transform(df['target'])
 ```
 
-
+# 시각화로 확인
 ```python
 #시각화로 확인
 #타겟이 class1~9로 써있던것이 숫자 0부터 8로 바뀌었다.
@@ -370,26 +371,11 @@ sns.countplot(df['target'])
 ```
 
     C:\Users\Administrator\anaconda3\lib\site-packages\seaborn\_decorators.py:36: FutureWarning: Pass the following variable as a keyword arg: x. From version 0.12, the only valid positional argument will be `data`, and passing other arguments without an explicit keyword will result in an error or misinterpretation.
-      warnings.warn(
-    
+      warnings.warn(<AxesSubplot:xlabel='target', ylabel='count'>
 
+   
 
-
-
-    <AxesSubplot:xlabel='target', ylabel='count'>
-
-
-
-
-    
-![output_4_2](https://user-images.githubusercontent.com/79041564/123429875-71a74b80-d602-11eb-84bd-ebb96ac44ba7.png)
-![output_8_2](https://user-images.githubusercontent.com/79041564/123429879-723fe200-d602-11eb-8d67-d1996f5c8dd6.png)
-![output_11_2](https://user-images.githubusercontent.com/79041564/123429880-72d87880-d602-11eb-8e90-9159f58c34b3.png)
-![output_12_2](https://user-images.githubusercontent.com/79041564/123429882-73710f00-d602-11eb-8b35-a2dac92f0b37.png)
-![output_19_0](https://user-images.githubusercontent.com/79041564/123429887-73710f00-d602-11eb-99dd-fa924ec4ae36.png)
-
-
-
+# 트레이닝과 테스트를 위한 모델 준비
 
 ```python
 #트레이닝과 테스트를 위한 모델 준비
@@ -404,7 +390,7 @@ from sklearn.model_selection import train_test_split
 x_train,x_test,y_train,y_test=train_test_split(x,y,random_state=0,test_size=0.2)
 ```
 
-
+# 로지스틱 회귀와 정확도 점수 측정을 위해 패키지 불러오기
 ```python
 #로지스틱 회귀와 정확도 점수 측정을 위해 패키지 불러오기
 from sklearn.linear_model import LogisticRegression
@@ -462,14 +448,7 @@ list_models.append('random forest classifier')
 ```python
 score_2
 ```
-
-
-
-
     0.8062378797672916
-
-
-
 
 ```python
 fig,axes=plt.subplots(1,2)
@@ -481,13 +460,7 @@ sns.countplot(y_test,ax=axes[1])
     C:\Users\Administrator\anaconda3\lib\site-packages\seaborn\_decorators.py:36: FutureWarning: Pass the following variable as a keyword arg: x. From version 0.12, the only valid positional argument will be `data`, and passing other arguments without an explicit keyword will result in an error or misinterpretation.
       warnings.warn(
     C:\Users\Administrator\anaconda3\lib\site-packages\seaborn\_decorators.py:36: FutureWarning: Pass the following variable as a keyword arg: x. From version 0.12, the only valid positional argument will be `data`, and passing other arguments without an explicit keyword will result in an error or misinterpretation.
-      warnings.warn(
-    
-
-
-
-
-    <AxesSubplot:xlabel='target', ylabel='count'>
+      warnings.warn( <AxesSubplot:xlabel='target', ylabel='count'>
 
 
 
@@ -498,7 +471,7 @@ sns.countplot(y_test,ax=axes[1])
     
 
 
-
+# 로지스틱 회귀 모형과 랜덤 포리스트 모형에 대한 비교 bw 예측을 생성해 봅시다.
 ```python
 #로지스틱 회귀 모형과 랜덤 포리스트 모형에 대한 비교 bw 예측을 생성해 봅시다.
 fig,axes=plt.subplots(1,2)
