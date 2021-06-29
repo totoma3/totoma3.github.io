@@ -26,4 +26,4 @@ docs:
   - title: Getting Started
     children:
       - title: "Quick-Start Guide"
-        url: https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/     
+        url: /docs/quick-start-guide/
