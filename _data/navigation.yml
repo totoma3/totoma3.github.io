@@ -9,19 +9,13 @@ main:
   - title: "categories"
     url: /categories/
     
-    
-Kaggle:
-  - title: "Kaggle"
-    children:
-      - title: "Kaggle-study"
-        url: /kaggle/kaggle-study/
-   
+      
 
 #  - title: "Sitemap"
 #    url: /sitemap/
 
 docs:
-  - title: Getting Started
+  - title: category
     children:
       - title: "Quick-Start Guide"
         url: /docs/quick-start-guide/
