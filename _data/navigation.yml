@@ -7,7 +7,7 @@ main:
   - title: "totoma's naver blog"
     url: https://blog.naver.com/totoma3
   - title: "categories"
-    url: /categories/
+    permalink: /categories/
     
       
 
@@ -20,4 +20,4 @@ docs:
       - title: "Quick-Start Guide"
         url: /docs/quick-start-guide/
       - title: "Kaggle"
-        url: /docs/kaggle/
+        permalink: /categories/
