@@ -12,7 +12,6 @@ main:
     
 Kaggle:
   - title: "Kaggle"
-    url: /parent-1-page-url/
     children:
       - title: "Kaggle-study"
         url: /kaggle/kaggle-study/
