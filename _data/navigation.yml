@@ -19,6 +19,5 @@ docs:
     children:
       - title: "Quick-Start Guide"
         url: /docs/quick-start-guide/
-    children:
       - title: "Kaggle"
         url: /docs/kaggle/
