@@ -2,5 +2,5 @@
 title: kaggle
 layout: category
 permalink: /categories/
-taxonomy: foo
+taxonomy: kaggle
 ---
