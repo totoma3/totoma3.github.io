@@ -10,14 +10,13 @@ main:
     url: /:categories/
     
     
-kaggle:
-  - title: "Parent Link 1"
+Kaggle:
+  - title: "Kaggle"
     url: /parent-1-page-url/
     children:
-      - title: "Child Link 1"
-        url: /child-1-page-url/
-      - title: "Child Link 2"
-        url: /child-2-page-url/
+      - title: "Kaggle-study"
+        url: /kaggle/kaggle-study/
+   
 
 #  - title: "Sitemap"
 #    url: /sitemap/
