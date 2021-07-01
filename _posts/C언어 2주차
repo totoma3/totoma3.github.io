@@ -1,0 +1,17 @@
+---
+title: "C언어 2주차"
+layout: single
+description: "Hello world~조건문과 반복문!"
+headline: "Hello world~조건문과 반복문 학습!"
+comments: true
+published: true
+sidebar:
+  nav: "docs"
+toc: true
+toc_label: "Contents"
+toc_icon: "cog"
+toc_sticky: true
+categories:
+  - c_language
+---
+
